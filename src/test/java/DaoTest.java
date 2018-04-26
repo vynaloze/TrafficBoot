@@ -25,7 +25,7 @@ public class DaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldInsertAndSelect() {
+    public void shouldGetUniqueStopById() {
         //given
         Stop givenStop = stop1;
         //when
@@ -35,7 +35,7 @@ public class DaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldReturnListOfStops() {
+    public void shouldGetStopsByPartOfAddress() {
         //given
         String expectedAddress = "upa";
         //when

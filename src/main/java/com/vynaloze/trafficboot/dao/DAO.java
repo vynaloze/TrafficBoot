@@ -10,4 +10,6 @@ public interface DAO {
     Stop getStopById(int id);
 
     List<Stop> getStopsByAddress(String address);
+
+    void deleteStops(int id);
 }

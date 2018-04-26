@@ -61,4 +61,17 @@ public class DatabaseDAO implements DAO {
 
         return jdbcTemplate.query(query, namedParameters, new StopExtractor());
     }
+
+    @Override
+    public void deleteStops(int id) {
+        String query = queryProvider.getDeleteStopsQuery();
+
+        Map<String, Object> namedParameters = new HashMap<>();
+        namedParameters.put("id", id);
+
+        logger.info("Query: " + query);
+        logger.info("Parameters: " + namedParameters);
+
+        jdbcTemplate.update(query, namedParameters);
+    }
 }

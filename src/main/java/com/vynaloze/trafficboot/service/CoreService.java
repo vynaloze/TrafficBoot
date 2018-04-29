@@ -11,5 +11,5 @@ public interface CoreService {
 
     List<Stop> listStops(String optionalName);
 
-    void deleteStop(int id);
+    Stop deleteStop(int id);
 }

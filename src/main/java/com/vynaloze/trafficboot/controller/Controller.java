@@ -14,8 +14,6 @@ public class Controller {
     @Autowired
     private CoreService service;
 
-    //TODO exception handling
-
     @GetMapping("/stops")
     List<Stop> getStops(@RequestParam(value = "name", defaultValue = "") String name) {
         return service.listStops(name);
@@ -34,8 +32,7 @@ public class Controller {
 
     @DeleteMapping("/stops/{id}")
     ResponseEntity deleteStop(@PathVariable int id) {
-        Stop stop = service.getStop(id);
-        service.deleteStop(id);
+        Stop stop = service.deleteStop(id);
         return new ResponseEntity(stop, HttpStatus.OK);
     }
 

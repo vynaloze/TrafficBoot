@@ -1,10 +1,12 @@
 package com.vynaloze.trafficboot.dao;
 
-import com.vynaloze.trafficboot.dao.extractors.StopExtractor;
+import com.vynaloze.trafficboot.dao.extractors.StopMapper;
 import com.vynaloze.trafficboot.model.Stop;
+import com.vynaloze.trafficboot.model.exception.StopNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -45,8 +47,11 @@ public class DatabaseDAO implements DAO {
         logger.info("Query: " + query);
         logger.info("Parameters: " + namedParameters);
 
-        return jdbcTemplate.queryForObject(query, namedParameters,
-                (rs, i) -> new Stop(rs.getInt("id"), rs.getString("address"))); //todo ? extract to class ?
+        try {
+            return jdbcTemplate.queryForObject(query, namedParameters, new StopMapper());
+        } catch (EmptyResultDataAccessException e) {
+            throw new StopNotFoundException(id);
+        }
     }
 
     @Override
@@ -59,7 +64,11 @@ public class DatabaseDAO implements DAO {
         logger.info("Query: " + query);
         logger.info("Parameters: " + namedParameters);
 
-        return jdbcTemplate.query(query, namedParameters, new StopExtractor());
+        List<Stop> stops = jdbcTemplate.query(query, namedParameters, new StopMapper());
+        if (stops.isEmpty()) {
+            throw new StopNotFoundException(address);
+        }
+        return stops;
     }
 
     @Override

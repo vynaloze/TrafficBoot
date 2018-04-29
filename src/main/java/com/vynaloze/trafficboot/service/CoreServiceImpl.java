@@ -2,6 +2,8 @@ package com.vynaloze.trafficboot.service;
 
 import com.vynaloze.trafficboot.dao.DAO;
 import com.vynaloze.trafficboot.model.Stop;
+import com.vynaloze.trafficboot.model.exception.DuplicateStopFoundException;
+import com.vynaloze.trafficboot.model.exception.StopNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,12 @@ public class CoreServiceImpl implements CoreService {
 
     @Override
     public void addStop(Stop stop) {
-        dao.insertStop(stop);
+        try {
+            dao.getStopById(stop.getId());
+            throw new DuplicateStopFoundException(stop.getId());
+        } catch (StopNotFoundException e) {
+            dao.insertStop(stop);
+        }
     }
 
     @Override
@@ -28,7 +35,9 @@ public class CoreServiceImpl implements CoreService {
     }
 
     @Override
-    public void deleteStop(int id) {
+    public Stop deleteStop(int id) {
+        Stop stop = dao.getStopById(id);
         dao.deleteStops(id);
+        return stop;
     }
 }

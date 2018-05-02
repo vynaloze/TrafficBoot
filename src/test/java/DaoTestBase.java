@@ -9,11 +9,7 @@ public class DaoTestBase {
     protected final Stop stop1 = new Stop(1, "dupa");
     protected final Stop stop2 = new Stop(2, "pupa");
 
-    protected void setUpTest() {
-        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS test.stops (id INTEGER PRIMARY KEY, address TEXT)");
-    }
-
     protected void tearDownTest() {
-        jdbcTemplate.execute("DROP TABLE test.stops");
+        jdbcTemplate.execute("TRUNCATE TABLE test.stops");
     }
 }

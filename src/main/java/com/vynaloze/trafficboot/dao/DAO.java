@@ -1,15 +1,18 @@
 package com.vynaloze.trafficboot.dao;
 
-import com.vynaloze.trafficboot.model.Stop;
-
 import java.util.List;
+import java.util.Map;
 
-public interface DAO {
-    void insertStop(Stop stop);
+public interface DAO<T> {
+    void create(T object);
 
-    Stop getStopById(int id);
+    T find(Class<?> type, int id);
 
-    List<Stop> getStopsByAddress(String address);
+    List<T> findWithParameters(Class<?> type, String query);
 
-    void deleteStops(int id);
+    List<T> findWithParameters(Class<?> type, String query, Map<String, Object> namedParameters);
+
+    void update(T object);
+
+    void delete(Class<?> type, int id);
 }

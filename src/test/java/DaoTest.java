@@ -1,7 +1,8 @@
 import com.vynaloze.trafficboot.Main;
 import com.vynaloze.trafficboot.dao.DAO;
+import com.vynaloze.trafficboot.dao.orm.exception.EntityNotFoundException;
 import com.vynaloze.trafficboot.model.Stop;
-import com.vynaloze.trafficboot.model.exception.StopNotFoundException;
+import com.vynaloze.trafficboot.util.CustomQueryProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -19,12 +22,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @SpringBootTest(classes = Main.class)
 public class DaoTest extends DaoTestBase {
     @Autowired
-    private DAO dao;
+    private DAO<Stop> dao;
+    @Autowired
+    private CustomQueryProvider queryProvider;
 
     @Before
     public void setUp() {
-        dao.insertStop(stop1);
-        dao.insertStop(stop2);
+        dao.create(stop1);
+        dao.create(stop2);
     }
 
     @Test
@@ -32,7 +37,7 @@ public class DaoTest extends DaoTestBase {
         //given
         final Stop givenStop = stop1;
         //when
-        Stop obtainedStop = dao.getStopById(givenStop.getId());
+        Stop obtainedStop = dao.find(Stop.class, givenStop.getId());
         //then
         assertThat(obtainedStop).isEqualTo(givenStop);
     }
@@ -40,9 +45,12 @@ public class DaoTest extends DaoTestBase {
     @Test
     public void shouldGetStopsByPartOfAddress() {
         //given
-        final String expectedAddress = "upa";
+        final String expectedAddress = "%upa%";
+        final String query = queryProvider.getSelectStopByAddressQuery();
+        Map<String, Object> namedParameters = new HashMap<>();
+        namedParameters.put("address", expectedAddress);
         //when
-        List<Stop> obtainedStops = dao.getStopsByAddress(expectedAddress);
+        List<Stop> obtainedStops = dao.findWithParameters(Stop.class, query, namedParameters);
         //then
         assertThat(obtainedStops).hasSize(2).containsExactlyInAnyOrder(stop1, stop2);
     }
@@ -51,20 +59,14 @@ public class DaoTest extends DaoTestBase {
     public void shouldDeleteStop() {
         //given
         final int stopToDelete = stop1.getId();
+        final String query = queryProvider.getSelectStopByAddressQuery();
+        Map<String, Object> namedParameters = new HashMap<>();
+        namedParameters.put("address", "%");
         //when
-        dao.deleteStops(stopToDelete);
+        dao.delete(Stop.class, stopToDelete);
         //then
-        assertThat(dao.getStopsByAddress("")).hasSize(1).containsOnly(stop2);
-    }
-
-    @Test
-    public void shouldThrowNotFoundExceptions() {
-        //given
-        final int invalidId = 42;
-        final String invalidName = "Ford";
-        //then
-        assertThatExceptionOfType(StopNotFoundException.class).isThrownBy(() -> dao.getStopById(invalidId));
-        assertThatExceptionOfType(StopNotFoundException.class).isThrownBy(() -> dao.getStopsByAddress(invalidName));
+        assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() -> dao.find(Stop.class, stopToDelete));
+        assertThat(dao.findWithParameters(Stop.class, query, namedParameters)).hasSize(1).containsOnly(stop2);
     }
 
     @After

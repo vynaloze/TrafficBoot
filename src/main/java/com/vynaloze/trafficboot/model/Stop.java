@@ -1,7 +1,13 @@
 package com.vynaloze.trafficboot.model;
 
+import com.vynaloze.trafficboot.dao.orm.entity.annotation.Entity;
+import com.vynaloze.trafficboot.dao.orm.entity.annotation.EntityField;
+
+@Entity
 public class Stop {
+    @EntityField
     private Integer id;
+    @EntityField
     private String address;
 
     public Stop(Integer id, String address) {
